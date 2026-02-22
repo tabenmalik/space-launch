@@ -20,14 +20,18 @@ rb = [
 
 def space_launch(stdscr: curses.window) -> None:
 
-    while True:
+    lines = curses.LINES
+    for y in range(lines, 0, -1):
         # Clear screen
         stdscr.clear()
         for i, line in enumerate(rb):
-            stdscr.addstr(i, 0, line)
+            try:
+                stdscr.addstr(y + i, 0, line)
+            except curses.error:
+                pass
 
         stdscr.refresh()
-        time.sleep(1)
+        time.sleep(0.04)
 
 
 def my_wrapper(func, /, *args, **kwds):
