@@ -21,7 +21,7 @@ rb = [
 def space_launch(stdscr: curses.window) -> None:
 
     lines = curses.LINES
-    for y in range(lines, 0, -1):
+    for y in range(lines, -len(rb), -1):
         # Clear screen
         stdscr.clear()
         for i, line in enumerate(rb):
