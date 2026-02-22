@@ -18,10 +18,28 @@ def space_launch(stdscr: curses.window) -> None:
         stdscr.getkey()
 
 
+def my_wrapper(func, /, *args, **kwds):
+    """like curses.wrapper but without starting color"""
+    try:
+        stdscr = curses.initscr()
+        curses.noecho()
+        curses.cbreak()
+        stdscr.keypad(1)
+
+        return func(stdscr, *args, **kwds)
+    finally:
+        # Set everything back to normal
+        if "stdscr" in locals():
+            stdscr.keypad(0)
+            curses.echo()
+            curses.nocbreak()
+            curses.endwin()
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="space_launch")
     _ = parser.parse_args(argv)
-    curses.wrapper(space_launch)
+    my_wrapper(space_launch)
     return 0
 
 
