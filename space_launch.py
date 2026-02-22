@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from curses import wrapper
+import argparse
+import curses
+from collections.abc import Sequence
 
 
-def main(stdscr):
+def space_launch(stdscr: curses.window) -> None:
     # Clear screen
     stdscr.clear()
 
@@ -16,4 +18,12 @@ def main(stdscr):
         stdscr.getkey()
 
 
-wrapper(main)
+def main(argv: Sequence[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(prog="space_launch")
+    _ = parser.parse_args(argv)
+    curses.wrapper(space_launch)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
