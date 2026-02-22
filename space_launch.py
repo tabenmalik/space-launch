@@ -2,20 +2,32 @@ from __future__ import annotations
 
 import argparse
 import curses
+import time
 from collections.abc import Sequence
+
+rb = [
+    "   I",
+    "  /o\\",
+    "  | |",
+    "  | |",
+    " /[_]\\",
+    "   A",
+    "  ( )",
+    "   )",
+    "  ( )",
+]
 
 
 def space_launch(stdscr: curses.window) -> None:
-    # Clear screen
-    stdscr.clear()
 
-    # This raises ZeroDivisionError when i == 10.
-    for i in range(0, 11):
-        v = i - 10
-        stdscr.addstr(i, 0, f"10 divided by {v} is {10/v}")
+    while True:
+        # Clear screen
+        stdscr.clear()
+        for i, line in enumerate(rb):
+            stdscr.addstr(i, 0, line)
 
         stdscr.refresh()
-        stdscr.getkey()
+        time.sleep(1)
 
 
 def my_wrapper(func, /, *args, **kwds):
@@ -24,7 +36,9 @@ def my_wrapper(func, /, *args, **kwds):
         stdscr = curses.initscr()
         curses.noecho()
         curses.cbreak()
+        curses.curs_set(0)
         stdscr.keypad(1)
+        stdscr.leaveok(True)
 
         return func(stdscr, *args, **kwds)
     finally:
