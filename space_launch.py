@@ -22,11 +22,13 @@ def space_launch(stdscr: curses.window) -> None:
 
     lines = curses.LINES
     for y in range(lines, -len(rb), -1):
+        curses.update_lines_cols()
         # Clear screen
         stdscr.clear()
+        half = curses.COLS // 2
         for i, line in enumerate(rb):
             try:
-                stdscr.addstr(y + i, 0, line)
+                stdscr.addstr(y + i, half - 4, line)
             except curses.error:
                 pass
 
