@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import curses
 import time
+from collections.abc import Callable
 from collections.abc import Sequence
 
 rb = [
@@ -36,21 +37,21 @@ def space_launch(stdscr: curses.window) -> None:
         time.sleep(0.04)
 
 
-def my_wrapper(func, /, *args, **kwds):
+def my_wrapper(func: Callable[[curses.window], None], /) -> None:
     """like curses.wrapper but without starting color"""
     try:
         stdscr = curses.initscr()
         curses.noecho()
         curses.cbreak()
         curses.curs_set(0)
-        stdscr.keypad(1)
+        stdscr.keypad(True)
         stdscr.leaveok(True)
 
-        return func(stdscr, *args, **kwds)
+        return func(stdscr)
     finally:
         # Set everything back to normal
         if "stdscr" in locals():
-            stdscr.keypad(0)
+            stdscr.keypad(False)
             curses.echo()
             curses.nocbreak()
             curses.endwin()
