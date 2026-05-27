@@ -1,0 +1,72 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [ "setuptools>=61" ]
+
+[project]
+name = "space-launch"
+version = "0.0.0"
+description = ""
+readme = "README.md"
+license = "MIT"
+license-files = [ "LICENSE" ]
+authors = [
+  { name = "Taben Malik", email = "tabenjmalik@gmail.com" },
+]
+requires-python = ">=3.10"
+classifiers = [
+  "Environment :: Console",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: Implementation :: CPython",
+]
+urls.Homepage = "https://github.com/tabenmalik/space-launch"
+urls.Issues = "https://github.com/tabenmalik/space-launch/issues"
+scripts.space-launch = "space_launch:main"
+
+[tool.setuptools]
+py-modules = [ "space_launch" ]
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+overrides = [ { module = "tests.*", disallow_untyped_defs = false } ]
+
+[tool.coverage]
+run.plugins = [ "covdefaults" ]
+run.relative_files = true
+paths.source = [
+  ".",
+  ".tox*/*/lib/python*/site-packages",
+  ".tox*/pypy*/site-packages",
+  ".tox*\\*\\Lib\\site-packages",
+  "*/src",
+  "*\\src",
+]
+
+[tool.tox]
+env_list = [ "3.10", "3.11", "3.12", "3.13", "3.14", "coverage" ]
+env.coverage.description = "Compile and report coverage"
+env.coverage.deps = [ "coverage[toml]", "covdefaults" ]
+env.coverage.depends = [ "3.10", "3.11", "3.12", "3.13", "3.14" ]
+env.coverage.skip_intsall = true
+env.coverage.set_env = { COVERAGE_FILE = "{env:COVERAGE_FILE:{work_dir}{/}.coverage}" }
+env.coverage.commands = [
+  [ "coverage", "erase" ],
+  [ "coverage", "combine", "--keep" ],
+  [ "coverage", "report" ],
+]
+env_run_base.description = "Run test under {base_python}"
+env_run_base.deps = [ "pytest", "coverage[toml]", "covdefaults" ]
+env_run_base.set_env = { COVERAGE_FILE = "{env:COVERAGE_FILE:{work_dir}{/}.coverage.{env_name}}" }
+env_run_base.commands = [
+  [ "coverage", "erase" ],
+  [ "coverage", "run", "--module", "pytest", { replace = "posargs", extend = true } ],
+]
