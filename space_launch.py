@@ -5,36 +5,66 @@ import curses
 import time
 from collections.abc import Callable
 from collections.abc import Sequence
+from itertools import count
+from typing import NamedTuple
 
-rb = [
-    "   I",
-    "  /o\\",
-    "  | |",
-    "  | |",
-    " /[_]\\",
-    "   A",
-    "  ( )",
-    "   )",
-    "  ( )",
-]
+
+class Frame(NamedTuple):
+    hold: float
+    image: tuple[str, ...]
+
+
+FRAMES: tuple[Frame, ...] = (
+    Frame(
+        hold=0.02,
+        image=(
+            "   I",
+            "  /o\\",
+            "  | |",
+            "  | |",
+            " /[_]\\",
+            "   A",
+            "  ( )",
+            "   )",
+            "  ( )",
+        ),
+    ),
+    Frame(
+        hold=0.02,
+        image=(
+            "   I",
+            "  /o\\",
+            "  | |",
+            "  | |",
+            " /[_]\\",
+            "   A",
+            "   (",
+            "  ( )",
+            "   )",
+        ),
+    ),
+)
 
 
 def space_launch(stdscr: curses.window) -> None:
 
     lines = curses.LINES
-    for y in range(lines, -len(rb), -1):
+    for y in count():
         curses.update_lines_cols()
         # Clear screen
         stdscr.clear()
         half = curses.COLS // 2
-        for i, line in enumerate(rb):
-            try:
-                stdscr.addstr(y + i, half - 4, line)
-            except curses.error:
-                pass
+        for frame in FRAMES:
+            for i, line in enumerate(frame.image):
+                try:
+                    stdscr.addstr(lines - y + i, half - 4, line)
+                except curses.error:
+                    pass
+            if lines - y + i < 0:
+                return
 
-        stdscr.refresh()
-        time.sleep(0.04)
+            stdscr.refresh()
+            time.sleep(frame.hold)
 
 
 def my_wrapper(func: Callable[[curses.window], None], /) -> None:
