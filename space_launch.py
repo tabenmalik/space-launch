@@ -6,43 +6,33 @@ import curses
 import time
 from collections.abc import Generator
 from collections.abc import Sequence
-from itertools import count
-from typing import NamedTuple
 
 
-class Frame(NamedTuple):
-    hold: float
-    image: tuple[str, ...]
+Frame = tuple[str, ...]
 
 
 FRAMES: tuple[Frame, ...] = (
-    Frame(
-        hold=0.02,
-        image=(
-            "   I",
-            "  /o\\",
-            "  | |",
-            "  | |",
-            " /[_]\\",
-            "   A",
-            "  ( )",
-            "   )",
-            "  ( )",
-        ),
+    (
+        "   I",
+        "  /o\\",
+        "  | |",
+        "  | |",
+        " /[_]\\",
+        "   A",
+        "  ( )",
+        "   )",
+        "  ( )",
     ),
-    Frame(
-        hold=0.02,
-        image=(
-            "   I",
-            "  /o\\",
-            "  | |",
-            "  | |",
-            " /[_]\\",
-            "   A",
-            "   (",
-            "  ( )",
-            "   )",
-        ),
+    (
+        "   I",
+        "  /o\\",
+        "  | |",
+        "  | |",
+        " /[_]\\",
+        "   A",
+        "   (",
+        "  ( )",
+        "   )",
     ),
 )
 
@@ -50,22 +40,22 @@ FRAMES: tuple[Frame, ...] = (
 def space_launch(stdscr: curses.window, frames: tuple[Frame, ...]) -> None:
 
     lines = curses.LINES
-    for y in count():
-        curses.update_lines_cols()
-        # Clear screen
-        stdscr.clear()
-        half = curses.COLS // 2
+    y = 0
+    while True:
         for frame in frames:
-            for i, line in enumerate(frame.image):
+            curses.update_lines_cols()
+            stdscr.clear()
+            half = curses.COLS // 2
+            for i, line in enumerate(frame):
                 try:
                     stdscr.addstr(lines - y + i, half - 4, line)
                 except curses.error:
                     pass
-            if lines - y + i < 0:
-                return
-
+            y += 1
             stdscr.refresh()
-            time.sleep(frame.hold)
+            time.sleep(0.06)
+        if lines - y + i < 0:
+            break
 
 
 @contextlib.contextmanager
