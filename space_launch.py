@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import curses
 import time
-from collections.abc import Callable
+from collections.abc import Generator
 from collections.abc import Sequence
 from itertools import count
 from typing import NamedTuple
@@ -46,7 +47,7 @@ FRAMES: tuple[Frame, ...] = (
 )
 
 
-def space_launch(stdscr: curses.window) -> None:
+def space_launch(stdscr: curses.window, frames: tuple[Frame, ...]) -> None:
 
     lines = curses.LINES
     for y in count():
@@ -54,7 +55,7 @@ def space_launch(stdscr: curses.window) -> None:
         # Clear screen
         stdscr.clear()
         half = curses.COLS // 2
-        for frame in FRAMES:
+        for frame in frames:
             for i, line in enumerate(frame.image):
                 try:
                     stdscr.addstr(lines - y + i, half - 4, line)
@@ -67,7 +68,8 @@ def space_launch(stdscr: curses.window) -> None:
             time.sleep(frame.hold)
 
 
-def my_wrapper(func: Callable[[curses.window], None], /) -> None:
+@contextlib.contextmanager
+def screen_init() -> Generator[curses.window]:
     """like curses.wrapper but without starting color"""
     try:
         stdscr = curses.initscr()
@@ -77,7 +79,7 @@ def my_wrapper(func: Callable[[curses.window], None], /) -> None:
         stdscr.keypad(True)
         stdscr.leaveok(True)
 
-        return func(stdscr)
+        yield stdscr
     finally:
         # Set everything back to normal
         if "stdscr" in locals():
@@ -90,7 +92,9 @@ def my_wrapper(func: Callable[[curses.window], None], /) -> None:
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="space_launch")
     _ = parser.parse_args(argv)
-    my_wrapper(space_launch)
+
+    with screen_init() as stdscr:
+        space_launch(stdscr, FRAMES)
     return 0
 
 
