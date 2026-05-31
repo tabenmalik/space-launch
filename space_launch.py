@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import contextlib
 import curses
+import json
 import time
 from collections.abc import Generator
 from collections.abc import Sequence
@@ -37,14 +38,17 @@ FRAMES: tuple[Frame, ...] = (
 )
 
 
-def space_launch(stdscr: curses.window, frames: tuple[Frame, ...]) -> None:
-
+def space_launch(
+    stdscr: curses.window,
+    frames: tuple[Frame, ...],
+    rate: float = 0.04,
+) -> None:
     lines = curses.LINES
     y = 0
     while True:
         for frame in frames:
             curses.update_lines_cols()
-            stdscr.clear()
+            stdscr.erase()
             half = curses.COLS // 2
             for i, line in enumerate(frame):
                 try:
@@ -53,9 +57,16 @@ def space_launch(stdscr: curses.window, frames: tuple[Frame, ...]) -> None:
                     pass
             y += 1
             stdscr.refresh()
-            time.sleep(0.06)
+            time.sleep(rate)
         if lines - y + i < 0:
             break
+
+
+def load_animation(path: str) -> tuple[Frame, ...]:
+    with open(path) as fp:
+        data = json.load(fp)
+
+    return tuple(map(tuple, data))
 
 
 @contextlib.contextmanager
@@ -81,10 +92,20 @@ def screen_init() -> Generator[curses.window]:
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="space_launch")
-    _ = parser.parse_args(argv)
+
+    # possibly temporary args while I figure out the ascii animation
+    parser.add_argument("--animation")
+    parser.add_argument("--rate", type=float, default=0.04)
+
+    args = parser.parse_args(argv)
+
+    if args.animation:
+        frames = load_animation(args.animation)
+    else:
+        frames = FRAMES
 
     with screen_init() as stdscr:
-        space_launch(stdscr, FRAMES)
+        space_launch(stdscr, frames, args.rate)
     return 0
 
 
