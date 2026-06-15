@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "v2.23.0"
+    rev: "v2.24.1"
     hooks:
     -   id: pyproject-fmt
 -   repo: https://github.com/pre-commit/pre-commit-hooks
